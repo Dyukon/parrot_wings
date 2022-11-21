@@ -1,20 +1,16 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
+import {Injectable} from '@nestjs/common'
 import {CreateUserDto} from "./dto/create-user-dto"
-import {compare, genSalt, hash} from 'bcryptjs'
+import {genSalt, hash} from 'bcryptjs'
 import {UserModel} from "./user.model"
-import {LoginDto} from "../session/dto/login.dto"
 import {randomBytes} from "crypto"
 import {UserInfoDto} from "./dto/user-info.dto"
-import {TransactionService} from "../transaction/transaction.service"
 import {FilteredUserListResponseDto} from "./dto/filtered-user-list.dto"
 
 @Injectable()
 export class UserService {
   users: UserModel[]
 
-  constructor(
-    private readonly transactionService: TransactionService
-  ) {
+  constructor() {
     this.users = []
   }
 
@@ -26,7 +22,8 @@ export class UserService {
       id,
       dto.username,
       dto.email,
-      passwordHash
+      passwordHash,
+      0
     ))
     return `User is created - users: ${JSON.stringify(this.users)}`
   }
@@ -45,12 +42,11 @@ export class UserService {
 
   async getInfoById(id: string) {
     const user = await this.findById(id)
-    const balance = await this.transactionService.getBalanceByName(user.name)
     return new UserInfoDto(
       user.id,
       user.name,
       user.email,
-      balance
+      user.balance
     )
   }
 

@@ -3,12 +3,14 @@ export class UserModel {
   name: string
   email: string
   passwordHash: string
+  balance: number
 
   constructor(
     id: string,
     name: string,
     email: string,
-    passwordHash: string
+    passwordHash: string,
+    balance: number
   ) {
     this.id = id
     this.name = name

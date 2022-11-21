@@ -35,7 +35,7 @@ export class TransactionService {
       )
     }
 
-    const oldBalance = await this.getBalanceByName(dto.name)
+    const oldBalance = user.balance
     const balance = oldBalance + dto.amount
     if (balance < 0) {
       throw new HttpException(
@@ -50,6 +50,7 @@ export class TransactionService {
       balance
     )
 
+    user.balance = balance
     this.transactions.push(transaction)
 
     return transaction

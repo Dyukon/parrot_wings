@@ -2,10 +2,14 @@ import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
 import {LoginDto} from "./dto/login.dto"
 import {compare} from "bcryptjs"
 import {UserService} from "../user/user.service"
+import {JwtService} from "@nestjs/jwt"
 
 @Injectable()
 export class SessionService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService
+  ) {}
 
   async login(login: LoginDto) {
     const user = await this.userService.findByEmail(login.email)
@@ -25,6 +29,11 @@ export class SessionService {
       )
     }
 
-    return 'User is logged in'
+    const payload = {
+      email: login.email
+    }
+    return {
+      id_token: await this.jwtService.signAsync(payload)
+    }
   }
 }
