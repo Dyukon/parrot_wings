@@ -5,12 +5,15 @@ import {UserModel} from "./user.model"
 import {randomBytes} from "crypto"
 import {UserInfoDto} from "./dto/user-info.dto"
 import {FilteredUserListResponseDto} from "./dto/filtered-user-list.dto"
+import {JwtService} from "@nestjs/jwt"
 
 @Injectable()
 export class UserService {
   users: UserModel[]
 
-  constructor() {
+  constructor(
+    private readonly jwtService: JwtService
+  ) {
     this.users = []
   }
 
@@ -25,7 +28,13 @@ export class UserService {
       passwordHash,
       0
     ))
-    return `User is created - users: ${JSON.stringify(this.users)}`
+
+    const payload = {
+      email: dto.email
+    }
+    return {
+      id_token: await this.jwtService.signAsync(payload)
+    }
   }
 
   async findByEmail(email: string) {
