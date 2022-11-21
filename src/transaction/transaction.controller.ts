@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post} from '@nestjs/common'
+import {Body, Controller, Get, Post, UsePipes, ValidationPipe} from '@nestjs/common'
 import { TransactionService } from './transaction.service';
 import {CreateTransactionDto} from "./dto/create-transaction.dto"
 
@@ -8,11 +8,18 @@ export class TransactionController {
 
   @Get('api/protected/transactions')
   getTransactions() {
-    return this.transactionService.getTransactions()
+    const transactions = this.transactionService.findByName('')
+    return {
+      trans_token: transactions
+    }
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('api/protected/transactions')
-  createTransaction(@Body() transaction: CreateTransactionDto) {
-    return this.transactionService.createTransaction(transaction)
+  createTransaction(@Body() dto: CreateTransactionDto) {
+    const transaction = this.transactionService.createTransaction(dto)
+    return {
+      trans_token: transaction
+    }
   }
 }
