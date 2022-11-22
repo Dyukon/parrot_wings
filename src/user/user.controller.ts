@@ -1,21 +1,28 @@
-import {Controller, Post, Body, HttpException, HttpStatus, Get} from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Request,
+  Body,
+  HttpException,
+  HttpStatus,
+  Get,
+  UseGuards,
+  UsePipes,
+  ValidationPipe, HttpCode
+} from '@nestjs/common'
 import { UserService } from './user.service';
 import {CreateUserDto} from "./dto/create-user-dto"
 import {FilteredUserListRequestDto} from "./dto/filtered-user-list.dto"
+import {JwtAuthGuard} from "../guards/jwt.guard"
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @HttpCode(200)
+  @UsePipes(new ValidationPipe())
   @Post('users')
   async create(@Body() dto: CreateUserDto) {
-    if (!dto.username || !dto.password || !dto.email) {
-      throw new HttpException(
-        'You must send username, password and email',
-        HttpStatus.BAD_REQUEST
-      )
-    }
-
     const user = await this.userService.findByEmail(dto.email)
     if (user) {
       throw new HttpException(
@@ -27,14 +34,32 @@ export class UserController {
     return await this.userService.create(dto)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('api/protected/user-info')
-  async getUserInfo() {
-    const id = '' // TODO
-    return await this.userService.getInfoById(id)
+  async getUserInfo(@Request() req) {
+    const user = await this.userService.findByEmail(req.user.email)
+    if (!user) {
+      throw new HttpException(
+        'Invalid user',
+        HttpStatus.UNAUTHORIZED
+      )
+    }
+    return await this.userService.getInfoById(user.id)
   }
 
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
   @Post('api/protected/users/list')
-  async getFilteredUserList(@Body() dto: FilteredUserListRequestDto) {
+  async getFilteredUserList(@Request() req, @Body() dto: FilteredUserListRequestDto) {
+    const user = await this.userService.findByEmail(req.user.email)
+    if (!user) {
+      throw new HttpException(
+        'Invalid user',
+        HttpStatus.UNAUTHORIZED
+      )
+    }
+
     return this.userService.getFilteredUserList(dto.filter)
   }
 }

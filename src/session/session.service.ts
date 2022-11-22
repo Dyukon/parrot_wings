@@ -13,7 +13,6 @@ export class SessionService {
 
   async login(login: LoginDto) {
     const user = await this.userService.findByEmail(login.email)
-    console.log(`user: ${JSON.stringify(user)}`)
     if (!user) {
       throw new HttpException(
         'User not found',

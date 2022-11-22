@@ -1,4 +1,14 @@
-import {Body, Controller, HttpException, HttpStatus, Inject, Post, UsePipes, ValidationPipe} from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Post,
+  UsePipes,
+  ValidationPipe
+} from '@nestjs/common'
 import { SessionService } from './session.service';
 import {LoginDto} from "./dto/login.dto"
 
@@ -8,11 +18,10 @@ export class SessionController {
     private readonly sessionService: SessionService
   ) {}
 
-  @Post('sessions/create')
+  @HttpCode(200)
   @UsePipes(new ValidationPipe())
+  @Post('sessions/create')
   async login(@Body() login: LoginDto) {
-    console.log(`login: ${JSON.stringify(login)}`)
-
     if (!login.email || !login.password) {
       throw new HttpException(
         'You must send email and password',
