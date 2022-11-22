@@ -44,7 +44,7 @@ export class UserController {
         HttpStatus.UNAUTHORIZED
       )
     }
-    return await this.userService.getInfoById(user.id)
+    return await this.userService.getInfoById(user._id)
   }
 
   @HttpCode(200)

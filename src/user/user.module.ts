@@ -6,6 +6,8 @@ import {ConfigModule, ConfigService} from "@nestjs/config"
 import {getJwtConfig} from "../configs/jwt.config"
 import {PassportModule} from "@nestjs/passport"
 import {JwtStrategy} from "../strategies/jwt.strategy"
+import {TypeOrmModule} from '@nestjs/typeorm'
+import {User} from './user.entity'
 
 @Module({
   imports: [
@@ -15,7 +17,8 @@ import {JwtStrategy} from "../strategies/jwt.strategy"
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: getJwtConfig
-    })
+    }),
+    TypeOrmModule.forFeature([User])
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],

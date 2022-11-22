@@ -2,28 +2,22 @@ import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
 import {CreateTransactionDto} from "./dto/create-transaction.dto"
 import {TransactionModel} from "./transaction.model"
 import {UserService} from "../user/user.service"
+import {InjectRepository} from '@nestjs/typeorm'
+import {MongoRepository} from 'typeorm'
+import {Transaction} from './transaction.entity'
 
 @Injectable()
 export class TransactionService {
 
-  private transactions: TransactionModel[]
-
   constructor(
+    @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>,
     private readonly userService: UserService
-  ) {
-    this.transactions = []
-  }
+  ) {}
 
   async findByName(name: string) {
-    return this.transactions
-      .filter(x => x.username===name || name==='')
-  }
-
-  async getBalanceByName(name: string) {
-    const transactions = await this.findByName(name)
-    return transactions.reduce((accumulator, transaction) => {
-      return accumulator + transaction.balance
-    }, 0)
+    return await this.transactionRepository.find({
+      where: { username: name }
+    })
   }
 
   async createTransaction(dto: CreateTransactionDto) {
@@ -44,14 +38,14 @@ export class TransactionService {
       )
     }
 
-    const transaction = new TransactionModel(
-      dto.name,
-      dto.amount,
+    const transaction = await this.transactionRepository.create({
+      date: new Date(),
+      username: dto.name,
+      amount: dto.amount,
       balance
-    )
+    })
 
-    user.balance = balance
-    this.transactions.push(transaction)
+    await this.userService.updateBalanceById(user._id, balance)
 
     return transaction
   }
