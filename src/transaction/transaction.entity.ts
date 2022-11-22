@@ -6,10 +6,19 @@ export class Transaction {
   _id: string
 
   @Column()
-  date: Date
+  senderId: string
 
   @Column()
-  username: string
+  senderName: string
+
+  @Column()
+  recipientId: string
+
+  @Column()
+  recipientName: string
+
+  @Column()
+  date: Date
 
   @Column()
   amount: number

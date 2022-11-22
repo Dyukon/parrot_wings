@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
-import { SessionModule } from './session/session.module';
 import { TransactionModule } from './transaction/transaction.module';
 import {ConfigModule} from "@nestjs/config"
 import {TypeOrmModule} from '@nestjs/typeorm'
@@ -22,7 +21,6 @@ import {TypeOrmModule} from '@nestjs/typeorm'
       useUnifiedTopology: true
     }),
     UserModule,
-    SessionModule,
     TransactionModule
   ],
   controllers: [AppController],

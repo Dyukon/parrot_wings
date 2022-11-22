@@ -33,7 +33,7 @@ export class TransactionController {
       )
     }
 
-    const transactions = await this.transactionService.findByName(user.name)
+    const transactions = await this.transactionService.findBySenderId(user._id)
     return {
       trans_token: transactions
     }
@@ -44,15 +44,12 @@ export class TransactionController {
   @UsePipes(new ValidationPipe())
   @Post('api/protected/transactions')
   async createTransaction(@Request() req, @Body() dto: CreateTransactionDto) {
-    const user = await this.userService.findByEmail(req.user.email)
-    if (!user) {
-      throw new HttpException(
-        'Invalid user',
-        HttpStatus.UNAUTHORIZED
-      )
-    }
+    const transaction = await this.transactionService.createTransaction(
+      req.user.email,
+      dto.name,
+      dto.amount
+    )
 
-    const transaction = await this.transactionService.createTransaction(dto)
     return {
       trans_token: transaction
     }
