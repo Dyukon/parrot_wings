@@ -24,10 +24,18 @@ export class UserController {
   @UsePipes(new ValidationPipe())
   @Post('users')
   async create(@Body() dto: CreateUserRequestDto) {
-    const user = await this.userService.findByEmail(dto.email)
-    if (user) {
+    const userByEmail = await this.userService.findByEmail(dto.email)
+    if (userByEmail) {
       throw new HttpException(
         'A user with that email already exists',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+
+    const userByName = await this.userService.findByName(dto.username)
+    if (userByName) {
+      throw new HttpException(
+        'A user with that name already exists',
         HttpStatus.BAD_REQUEST
       )
     }

@@ -23,7 +23,7 @@ export class UserService {
     const salt = await genSalt(10)
     const passwordHash = await hash(dto.password, salt)
 
-    this.userRepository.save({
+    await this.userRepository.save({
       name: dto.username,
       email: dto.email,
       passwordHash,
