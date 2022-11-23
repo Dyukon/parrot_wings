@@ -11,7 +11,7 @@ import {
   HttpStatus, HttpCode
 } from '@nestjs/common'
 import { TransactionService } from './transaction.service';
-import {CreateTransactionDto} from "./dto/create-transaction.dto"
+import {CreateTransactionRequestDto} from "./dto/create-transaction.dto"
 import {JwtAuthGuard} from "../guards/jwt.guard"
 import {UserService} from "../user/user.service"
 
@@ -43,7 +43,7 @@ export class TransactionController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
   @Post('api/protected/transactions')
-  async createTransaction(@Request() req, @Body() dto: CreateTransactionDto) {
+  async createTransaction(@Request() req, @Body() dto: CreateTransactionRequestDto) {
     const transaction = await this.transactionService.createTransaction(
       req.user.email,
       dto.name,

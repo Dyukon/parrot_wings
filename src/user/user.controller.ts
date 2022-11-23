@@ -11,10 +11,10 @@ import {
   ValidationPipe, HttpCode
 } from '@nestjs/common'
 import { UserService } from './user.service';
-import {CreateUserDto} from "./dto/create-user-dto"
+import {CreateUserRequestDto} from "./dto/create-user-dto"
 import {FilteredUserListRequestDto} from "./dto/filtered-user-list.dto"
 import {JwtAuthGuard} from "../guards/jwt.guard"
-import {LoginDto} from './dto/login.dto'
+import {LoginRequestDto} from './dto/login.dto'
 
 @Controller()
 export class UserController {
@@ -23,7 +23,7 @@ export class UserController {
   @HttpCode(200)
   @UsePipes(new ValidationPipe())
   @Post('users')
-  async create(@Body() dto: CreateUserDto) {
+  async create(@Body() dto: CreateUserRequestDto) {
     const user = await this.userService.findByEmail(dto.email)
     if (user) {
       throw new HttpException(
@@ -38,7 +38,7 @@ export class UserController {
   @HttpCode(200)
   @UsePipes(new ValidationPipe())
   @Post('sessions/create')
-  async login(@Body() login: LoginDto) {
+  async login(@Body() login: LoginRequestDto) {
     if (!login.email || !login.password) {
       throw new HttpException(
         'You must send email and password',

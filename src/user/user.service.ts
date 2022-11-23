@@ -1,5 +1,5 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
-import {CreateUserDto} from "./dto/create-user-dto"
+import {CreateUserRequestDto} from "./dto/create-user-dto"
 import {compare, genSalt, hash} from 'bcryptjs'
 import {UserDto} from "./dto/user.dto"
 import {JwtService} from "@nestjs/jwt"
@@ -7,7 +7,7 @@ import {InjectRepository} from '@nestjs/typeorm'
 import {User} from './user.entity'
 import {DataSource, MongoRepository} from 'typeorm'
 import {FilteredUserListResponseDto} from './dto/filtered-user-list.dto'
-import {LoginDto} from './dto/login.dto'
+import {LoginRequestDto} from './dto/login.dto'
 
 @Injectable()
 export class UserService {
@@ -18,7 +18,7 @@ export class UserService {
     private readonly jwtService: JwtService
   ) {}
 
-  async create(dto: CreateUserDto) {
+  async create(dto: CreateUserRequestDto) {
     const salt = await genSalt(10)
     const passwordHash = await hash(dto.password, salt)
 
@@ -37,7 +37,7 @@ export class UserService {
     }
   }
 
-  async login(login: LoginDto) {
+  async login(login: LoginRequestDto) {
     const user = await this.findByEmail(login.email)
     if (!user) {
       throw new HttpException(
