@@ -1,5 +1,5 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
-import {UserService} from "../user/user.service"
+import {UserService} from '../user/user.service'
 import {InjectRepository} from '@nestjs/typeorm'
 import {MongoRepository} from 'typeorm'
 import {Transaction} from './transaction.entity'
@@ -21,7 +21,11 @@ export class TransactionService {
     return transactions.map(x => TransactionDto.fromTransaction(x))
   }
 
-  async createTransaction(senderEmail: string, recipientName: string, amount: number): Promise<TransactionDto>
+  async createTransaction(
+    senderEmail: string,
+    recipientName: string,
+    amount: number
+  ): Promise<TransactionDto>
   {
     const sender = await this.userService.findByEmail(senderEmail)
     const recipient = await this.userService.findByName(recipientName)
@@ -29,6 +33,13 @@ export class TransactionService {
     if (!sender || !recipient) {
       throw new HttpException(
         'User not found',
+        HttpStatus.NOT_FOUND
+      )
+    }
+
+    if (sender._id.toString() === recipient._id.toString()) {
+      throw new HttpException(
+        'Cannot make transfer to the same user',
         HttpStatus.NOT_FOUND
       )
     }
