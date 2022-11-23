@@ -40,7 +40,7 @@ export class TransactionService {
     if (sender._id.toString() === recipient._id.toString()) {
       throw new HttpException(
         'Cannot make transfer to the same user',
-        HttpStatus.NOT_FOUND
+        HttpStatus.BAD_REQUEST
       )
     }
 
