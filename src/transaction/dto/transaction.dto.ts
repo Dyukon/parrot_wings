@@ -8,13 +8,14 @@ export class TransactionDto {
   amount: number
   balance: number
 
-  static fromTransaction(t: Transaction): TransactionDto {
+  static fromTransaction(t: Transaction, userId: string): TransactionDto {
+    const isSender = t.senderId.toString()===userId.toString()
     return {
       id: t._id,
       date: DateLib.formatDate(t.date),
-      username: t.recipientName,
-      amount: t.amount,
-      balance: t.balance
+      username: (isSender ? t.recipientName : t.senderName),
+      amount: (isSender ? -t.amount : t.amount),
+      balance: (isSender ? t.senderBalance : t.recipientBalance)
     }
   }
 }

@@ -24,5 +24,8 @@ export class Transaction {
   amount: number
 
   @Column()
-  balance: number
+  senderBalance: number
+
+  @Column()
+  recipientBalance: number
 }

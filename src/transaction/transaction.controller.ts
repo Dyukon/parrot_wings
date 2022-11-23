@@ -33,7 +33,7 @@ export class TransactionController {
       )
     }
 
-    const transactions = await this.transactionService.findBySenderId(user._id)
+    const transactions = await this.transactionService.findByUserId(user._id)
     return {
       trans_token: transactions
     }

@@ -5,16 +5,17 @@ import { UserDto } from './dto/user.dto'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './user.entity'
-import { DataSource, MongoRepository } from 'typeorm'
+import { MongoRepository } from 'typeorm'
 import { FilteredUserListResponseDto } from './dto/filtered-user-list.dto'
 import { LoginRequestDto } from './dto/login.dto'
+import { Transaction } from '../transaction/transaction.entity'
 
 @Injectable()
 export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: MongoRepository<User>,
-    private readonly dataSource: DataSource,
+    @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>,
     private readonly jwtService: JwtService
   ) {
   }
@@ -83,7 +84,13 @@ export class UserService {
 
   async getInfoById(id: string): Promise<UserDto> {
     const user = await this.findById(id)
-    return UserDto.fromUser(user)
+    const balance = await this.getBalance(id)
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      balance: balance
+    }
   }
 
   async getFilteredUserList(filter: string, excludedId: string): Promise<FilteredUserListResponseDto[]> {
@@ -99,38 +106,25 @@ export class UserService {
       .filter(x => x.id.toString() !== excludedId.toString())
   }
 
-  async updateBalances(
-    senderId: string,
-    senderBalance: number,
-    recipientId: string,
-    recipientBalance: number
-  ) {
-    const queryRunner = this.dataSource.createQueryRunner()
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
+  async getBalance(userId: string) {
+    const lastTransactions = await this.transactionRepository.find({
+      where: {
+        $or: [
+          {senderId: userId},
+          {recipientId: userId}
+        ]
+      },
+      order: {
+        date: -1
+      },
+      take: 1
+    })
 
-    let isError = false
-    try {
-      await this.userRepository.updateOne(
-        {_id: senderId},
-        {$set: {balance: senderBalance}}
-      )
-      await this.userRepository.updateOne(
-        {_id: recipientId},
-        {$set: {balance: recipientBalance}}
-      )
-    } catch (err) {
-      isError = true
-      await queryRunner.rollbackTransaction()
-    } finally {
-      await queryRunner.release()
+    if (lastTransactions.length===0) {
+      return 500
     }
-
-    if (isError) {
-      throw new HttpException(
-        'Transaction processing error',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      )
-    }
+    const lastTransaction = lastTransactions[0]
+    const isSender = lastTransaction.senderId.toString()===userId.toString()
+    return isSender ? lastTransaction.senderBalance : lastTransaction.recipientBalance
   }
 }

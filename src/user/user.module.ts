@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { UserService } from './user.service'
 import { UserController } from './user.controller'
 import { JwtModule } from '@nestjs/jwt'
@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport'
 import { JwtStrategy } from '../strategies/jwt.strategy'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user.entity'
+import { Transaction } from '../transaction/transaction.entity'
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { User } from './user.entity'
       inject: [ConfigService],
       useFactory: getJwtConfig
     }),
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User, Transaction])
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],
