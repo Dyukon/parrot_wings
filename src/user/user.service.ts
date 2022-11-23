@@ -1,13 +1,13 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
-import {CreateUserRequestDto} from "./dto/create-user-dto"
-import {compare, genSalt, hash} from 'bcryptjs'
-import {UserDto} from "./dto/user.dto"
-import {JwtService} from "@nestjs/jwt"
-import {InjectRepository} from '@nestjs/typeorm'
-import {User} from './user.entity'
-import {DataSource, MongoRepository} from 'typeorm'
-import {FilteredUserListResponseDto} from './dto/filtered-user-list.dto'
-import {LoginRequestDto} from './dto/login.dto'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { CreateUserRequestDto } from './dto/create-user-dto'
+import { compare, genSalt, hash } from 'bcryptjs'
+import { UserDto } from './dto/user.dto'
+import { JwtService } from '@nestjs/jwt'
+import { InjectRepository } from '@nestjs/typeorm'
+import { User } from './user.entity'
+import { DataSource, MongoRepository } from 'typeorm'
+import { FilteredUserListResponseDto } from './dto/filtered-user-list.dto'
+import { LoginRequestDto } from './dto/login.dto'
 
 @Injectable()
 export class UserService {
@@ -16,7 +16,8 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: MongoRepository<User>,
     private readonly dataSource: DataSource,
     private readonly jwtService: JwtService
-  ) {}
+  ) {
+  }
 
   async create(dto: CreateUserRequestDto) {
     const salt = await genSalt(10)
@@ -64,19 +65,19 @@ export class UserService {
 
   async findByEmail(email: string) {
     return await this.userRepository.findOne({
-      where: { email: email }
+      where: {email: email}
     })
   }
 
   async findByName(name: string) {
     return await this.userRepository.findOne({
-      where: { name: name }
+      where: {name: name}
     })
   }
 
   async findById(id: string) {
     return await this.userRepository.findOne({
-      where: { _id: id }
+      where: {_id: id}
     })
   }
 
@@ -111,12 +112,12 @@ export class UserService {
     let isError = false
     try {
       await this.userRepository.updateOne(
-        { _id: senderId },
-        { $set: {balance: senderBalance}}
+        {_id: senderId},
+        {$set: {balance: senderBalance}}
       )
       await this.userRepository.updateOne(
-        { _id: recipientId },
-        { $set: {balance: recipientBalance}}
+        {_id: recipientId},
+        {$set: {balance: recipientBalance}}
       )
     } catch (err) {
       isError = true

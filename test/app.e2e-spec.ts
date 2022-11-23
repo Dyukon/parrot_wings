@@ -1,30 +1,30 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { Test, TestingModule } from '@nestjs/testing'
+import { INestApplication } from '@nestjs/common'
+import * as request from 'supertest'
+import { AppModule } from './../src/app.module'
 
 describe('AppController (e2e)', () => {
   const TEST_USER_NAME = 'Test'
   const TEST_USER_EMAIL = 'test@test.test'
   const TEST_USER_PASSWORD = 'test'
 
-  let app: INestApplication;
+  let app: INestApplication
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    }).compile()
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
+    app = moduleFixture.createNestApplication()
+    await app.init()
+  })
 
   it('/ (GET)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
-  });
+      .expect('Hello World!')
+  })
 
   describe('POST /users - register user', () => {
 
@@ -36,7 +36,7 @@ describe('AppController (e2e)', () => {
           password: TEST_USER_PASSWORD,
           email: TEST_USER_EMAIL
         })
-        .expect(200);
+        .expect(200)
 
       expect(res.body.id_token).toBeDefined()
       expect(res.body.id_token.split('.').length).toBe(3)
@@ -68,7 +68,7 @@ describe('AppController (e2e)', () => {
             email: TEST_USER_EMAIL,
             password: TEST_USER_PASSWORD
           })
-          .expect(200);
+          .expect(200)
 
         expect(res.body.id_token).toBeDefined()
         expect(res.body.id_token.split('.').length).toBe(3)
@@ -81,7 +81,7 @@ describe('AppController (e2e)', () => {
         const res = await request(app.getHttpServer())
           .get('/api/protected/transactions')
           .set(`Authorization`, authHeader)
-          .expect(200);
+          .expect(200)
 
         expect(res.body.trans_token).toBeDefined()
       })
@@ -97,7 +97,7 @@ describe('AppController (e2e)', () => {
             amount: 50
           })
           .set(`Authorization`, authHeader)
-          .expect(200);
+          .expect(200)
 
         expect(res.body.trans_token).toBeDefined()
       })
@@ -109,7 +109,7 @@ describe('AppController (e2e)', () => {
         const res = await request(app.getHttpServer())
           .get('/api/protected/user-info')
           .set(`Authorization`, authHeader)
-          .expect(200);
+          .expect(200)
 
         expect(res.body.id).toBeDefined()
         expect(res.body.name).toBe(TEST_USER_NAME)
@@ -127,7 +127,7 @@ describe('AppController (e2e)', () => {
             filter: 'Tes'
           })
           .set(`Authorization`, authHeader)
-          .expect(200);
+          .expect(200)
 
         expect(res.body.length).toBe(1)
         expect(res.body[0].id).toBeDefined()
@@ -141,7 +141,7 @@ describe('AppController (e2e)', () => {
             filter: 'John'
           })
           .set(`Authorization`, authHeader)
-          .expect(200);
+          .expect(200)
 
         expect(res.body.length).toBe(0)
       })

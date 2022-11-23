@@ -1,5 +1,5 @@
-import {IsString} from "class-validator"
-import {User} from '../user.entity'
+import { IsString } from 'class-validator'
+import { User } from '../user.entity'
 
 export class FilteredUserListRequestDto {
   @IsString()

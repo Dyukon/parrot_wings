@@ -10,11 +10,11 @@ import {
   UsePipes,
   ValidationPipe, HttpCode
 } from '@nestjs/common'
-import { UserService } from './user.service';
-import {CreateUserRequestDto} from "./dto/create-user-dto"
-import {FilteredUserListRequestDto} from "./dto/filtered-user-list.dto"
-import {JwtAuthGuard} from "../guards/jwt.guard"
-import {LoginRequestDto} from './dto/login.dto'
+import { UserService } from './user.service'
+import { CreateUserRequestDto } from './dto/create-user-dto'
+import { FilteredUserListRequestDto } from './dto/filtered-user-list.dto'
+import { JwtAuthGuard } from '../guards/jwt.guard'
+import { LoginRequestDto } from './dto/login.dto'
 
 @Controller()
 export class UserController {

@@ -1,5 +1,5 @@
-import {DateLib} from '../../lib/date.lib'
-import {Transaction} from '../transaction.entity'
+import { DateLib } from '../../lib/date.lib'
+import { Transaction } from '../transaction.entity'
 
 export class TransactionDto {
   id: string
