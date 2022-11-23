@@ -9,6 +9,7 @@ import { MongoRepository } from 'typeorm'
 import { FilteredUserListResponseDto } from './dto/filtered-user-list.dto'
 import { LoginRequestDto } from './dto/login.dto'
 import { Transaction } from '../transaction/transaction.entity'
+import { FinanceService } from '../finance/finance.service'
 
 @Injectable()
 export class UserService {
@@ -16,9 +17,9 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: MongoRepository<User>,
     @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>,
-    private readonly jwtService: JwtService
-  ) {
-  }
+    private readonly jwtService: JwtService,
+    private readonly financeService: FinanceService
+  ) {}
 
   async create(dto: CreateUserRequestDto) {
     const salt = await genSalt(10)
@@ -84,7 +85,7 @@ export class UserService {
 
   async getInfoById(id: string): Promise<UserDto> {
     const user = await this.findById(id)
-    const balance = await this.getBalance(id)
+    const balance = await this.financeService.getBalance(id)
     return {
       id: user._id,
       name: user.name,
@@ -104,27 +105,5 @@ export class UserService {
     return users
       .map(x => FilteredUserListResponseDto.fromUser(x))
       .filter(x => x.id.toString() !== excludedId.toString())
-  }
-
-  async getBalance(userId: string) {
-    const lastTransactions = await this.transactionRepository.find({
-      where: {
-        $or: [
-          {senderId: userId},
-          {recipientId: userId}
-        ]
-      },
-      order: {
-        date: -1
-      },
-      take: 1
-    })
-
-    if (lastTransactions.length===0) {
-      return 500
-    }
-    const lastTransaction = lastTransactions[0]
-    const isSender = lastTransaction.senderId.toString()===userId.toString()
-    return isSender ? lastTransaction.senderBalance : lastTransaction.recipientBalance
   }
 }

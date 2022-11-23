@@ -9,6 +9,7 @@ import { JwtStrategy } from '../strategies/jwt.strategy'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user.entity'
 import { Transaction } from '../transaction/transaction.entity'
+import { FinanceModule } from '../finance/finance.module'
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { Transaction } from '../transaction/transaction.entity'
       inject: [ConfigService],
       useFactory: getJwtConfig
     }),
-    TypeOrmModule.forFeature([User, Transaction])
+    TypeOrmModule.forFeature([User, Transaction]),
+    FinanceModule
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],

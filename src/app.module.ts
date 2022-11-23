@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user/user.entity'
 import { Transaction } from './transaction/transaction.entity'
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { Transaction } from './transaction/transaction.entity'
       }),
     }),
     UserModule,
-    TransactionModule
+    TransactionModule,
+    FinanceModule
   ],
   controllers: [AppController],
   providers: [AppService],

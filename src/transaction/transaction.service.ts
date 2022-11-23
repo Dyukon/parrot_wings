@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { DataSource, MongoRepository } from 'typeorm'
 import { Transaction } from './transaction.entity'
 import { TransactionDto } from './dto/transaction.dto'
+import { FinanceService } from '../finance/finance.service'
 
 @Injectable()
 export class TransactionService {
@@ -11,6 +12,7 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>,
     private readonly dataSource: DataSource,
+    private readonly financeService: FinanceService,
     private readonly userService: UserService
   ) {}
 
@@ -52,7 +54,7 @@ export class TransactionService {
       )
     }
 
-    const senderBalance = await this.getBalance(sender._id)
+    const senderBalance = await this.financeService.getBalance(sender._id)
     if (senderBalance < amount) {
       throw new HttpException(
         'Balance exceeded',
@@ -61,7 +63,7 @@ export class TransactionService {
     }
     const newSenderBalance = senderBalance - amount
 
-    const recipientBalance = await this.getBalance(recipient._id)
+    const recipientBalance = await this.financeService.getBalance(recipient._id)
     const newRecipientBalance = recipientBalance + amount
 
     const transaction = await this.transactionRepository.save({
@@ -76,27 +78,5 @@ export class TransactionService {
     })
 
     return TransactionDto.fromTransaction(transaction, sender._id)
-  }
-
-  async getBalance(userId: string) {
-    const lastTransactions = await this.transactionRepository.find({
-      where: {
-        $or: [
-          {senderId: userId},
-          {recipientId: userId}
-        ]
-      },
-      order: {
-        date: -1
-      },
-      take: 1
-    })
-
-    if (lastTransactions.length===0) {
-      return 500
-    }
-    const lastTransaction = lastTransactions[0]
-    const isSender = lastTransaction.senderId.toString()===userId.toString()
-    return isSender ? lastTransaction.senderBalance : lastTransaction.recipientBalance
   }
 }

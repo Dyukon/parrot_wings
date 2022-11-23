@@ -37,7 +37,7 @@ POST http://localhost:3000/sessions/create
     "password": "two"
 }
 {
-  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InR3b0B0d28udHdvIiwiaWF0IjoxNjY5MTgwMTMxfQ.a5U3AxhJ8zVRDp_fcVeeCpYkn9o9L0jAR8bS01BOK1E"
+  "id_token": TOKEN_TWO
 }
 
 ===
