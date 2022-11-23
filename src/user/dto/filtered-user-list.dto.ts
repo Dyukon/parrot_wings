@@ -1,4 +1,5 @@
 import {IsString} from "class-validator"
+import {User} from '../user.entity'
 
 export class FilteredUserListRequestDto {
   @IsString()
@@ -9,11 +10,10 @@ export class FilteredUserListResponseDto {
   id: string
   name: string
 
-  constructor(
-    id: string,
-    name: string
-  ) {
-    this.id = id
-    this.name = name
+  static fromUser(u: User): FilteredUserListResponseDto {
+    return {
+      id: u._id,
+      name: u.name
+    }
   }
 }

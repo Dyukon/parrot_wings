@@ -1,7 +1,7 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
 import {CreateUserDto} from "./dto/create-user-dto"
 import {compare, genSalt, hash} from 'bcryptjs'
-import {UserInfoDto} from "./dto/user-info.dto"
+import {UserDto} from "./dto/user.dto"
 import {JwtService} from "@nestjs/jwt"
 import {InjectRepository} from '@nestjs/typeorm'
 import {User} from './user.entity'
@@ -80,14 +80,9 @@ export class UserService {
     })
   }
 
-  async getInfoById(id: string) {
+  async getInfoById(id: string): Promise<UserDto> {
     const user = await this.findById(id)
-    return new UserInfoDto(
-      user._id,
-      user.name,
-      user.email,
-      user.balance
-    )
+    return UserDto.fromUser(user)
   }
 
   async getFilteredUserList(filter: string, excludedId: string): Promise<FilteredUserListResponseDto[]> {
@@ -99,7 +94,7 @@ export class UserService {
     })
 
     return users
-      .map(x => ({ id: x._id, name: x.name}))
+      .map(x => FilteredUserListResponseDto.fromUser(x))
       .filter(x => x.id.toString() !== excludedId.toString())
   }
 
