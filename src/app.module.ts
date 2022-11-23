@@ -23,6 +23,7 @@ import {Transaction} from './transaction/transaction.entity'
         database: configService.get('DB_DATABASE'),
         entities: [User, Transaction],
         synchronize: true,
+        useUnifiedTopology: true
       }),
     }),
     UserModule,

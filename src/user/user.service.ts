@@ -1,14 +1,12 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
 import {CreateUserDto} from "./dto/create-user-dto"
 import {compare, genSalt, hash} from 'bcryptjs'
-import {randomBytes} from "crypto"
 import {UserInfoDto} from "./dto/user-info.dto"
 import {JwtService} from "@nestjs/jwt"
 import {InjectRepository} from '@nestjs/typeorm'
 import {User} from './user.entity'
-import {MongoRepository} from 'typeorm'
+import {DataSource, MongoRepository} from 'typeorm'
 import {FilteredUserListResponseDto} from './dto/filtered-user-list.dto'
-import {IdLib} from '../lib/id.lib'
 import {LoginDto} from './dto/login.dto'
 
 @Injectable()
@@ -16,16 +14,15 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: MongoRepository<User>,
+    private readonly dataSource: DataSource,
     private readonly jwtService: JwtService
   ) {}
 
   async create(dto: CreateUserDto) {
-    const id = IdLib.createId()
     const salt = await genSalt(10)
     const passwordHash = await hash(dto.password, salt)
 
     this.userRepository.save({
-      id: id,
       name: dto.username,
       email: dto.email,
       passwordHash,
@@ -106,10 +103,38 @@ export class UserService {
       .filter(x => x.id.toString() !== excludedId.toString())
   }
 
-  async updateBalanceById(id: string, balance: number) {
-    return await this.userRepository.updateOne(
-      { _id: id },
-      { $set: {balance: balance}}
-    )
+  async updateBalances(
+    senderId: string,
+    senderBalance: number,
+    recipientId: string,
+    recipientBalance: number
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+
+    let isError = false
+    try {
+      await this.userRepository.updateOne(
+        { _id: senderId },
+        { $set: {balance: senderBalance}}
+      )
+      await this.userRepository.updateOne(
+        { _id: recipientId },
+        { $set: {balance: recipientBalance}}
+      )
+    } catch (err) {
+      isError = true
+      await queryRunner.rollbackTransaction()
+    } finally {
+      await queryRunner.release()
+    }
+
+    if (isError) {
+      throw new HttpException(
+        'Transaction processing error',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      )
+    }
   }
 }

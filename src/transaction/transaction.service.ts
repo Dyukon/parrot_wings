@@ -1,16 +1,16 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common'
 import {UserService} from '../user/user.service'
 import {InjectRepository} from '@nestjs/typeorm'
-import {MongoRepository} from 'typeorm'
+import {DataSource, MongoRepository} from 'typeorm'
 import {Transaction} from './transaction.entity'
 import {TransactionDto} from './dto/transaction.dto'
-import {IdLib} from '../lib/id.lib'
 
 @Injectable()
 export class TransactionService {
 
   constructor(
     @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>,
+    private readonly dataSource: DataSource,
     private readonly userService: UserService
   ) {}
 
@@ -54,35 +54,57 @@ export class TransactionService {
     const senderBalance = sender.balance - amount
     const recipientBalance = recipient.balance + amount
 
-    // TODO: make an atomary operation!
-    const mainTransaction = await this.transactionRepository.save({
-      _id: IdLib.createId(),
-      date: new Date(),
-      senderId: sender._id,
-      senderName: sender.name,
-      recipientId: recipient._id,
-      recipientName: recipient.name,
-      amount: -amount,
-      balance: senderBalance
-    })
-    const supplementaryTransaction = await this.transactionRepository.save({
-      date: new Date(),
-      senderId: recipient._id,
-      senderName: recipient.name,
-      recipientId: sender._id,
-      recipientName: sender.name,
-      amount: amount,
-      balance: recipientBalance
-    })
-    await this.userService.updateBalanceById(
+    const queryRunner = this.dataSource.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+    let transaction: Transaction
+    let isError = false
+    try {
+      const mainTransaction = new Transaction()
+      Object.assign(mainTransaction, {
+        date: new Date(),
+        senderId: sender._id,
+        senderName: sender.name,
+        recipientId: recipient._id,
+        recipientName: recipient.name,
+        amount: -amount,
+        balance: senderBalance
+      })
+      transaction = await queryRunner.manager.save(mainTransaction)
+
+      const supplementaryTransaction = new Transaction()
+      Object.assign(supplementaryTransaction,{
+        date: new Date(),
+        senderId: recipient._id,
+        senderName: recipient.name,
+        recipientId: sender._id,
+        recipientName: sender.name,
+        amount: amount,
+        balance: recipientBalance
+      })
+      await queryRunner.manager.save(supplementaryTransaction)
+    } catch (err) {
+      console.log(`err: ${err}`)
+      isError = true
+      await queryRunner.rollbackTransaction()
+    } finally {
+      await queryRunner.release()
+    }
+
+    if (isError) {
+      throw new HttpException(
+        'Transaction processing error',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      )
+    }
+
+    await this.userService.updateBalances(
       sender._id,
-      senderBalance
-    )
-    await this.userService.updateBalanceById(
+      senderBalance,
       recipient._id,
       recipientBalance
     )
 
-    return TransactionDto.fromTransaction(mainTransaction)
+    return TransactionDto.fromTransaction(transaction)
   }
 }
