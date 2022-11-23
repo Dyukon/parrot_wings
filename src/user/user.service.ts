@@ -8,7 +8,6 @@ import { User } from './user.entity'
 import { MongoRepository } from 'typeorm'
 import { FilteredUserListResponseDto } from './dto/filtered-user-list.dto'
 import { LoginRequestDto } from './dto/login.dto'
-import { Transaction } from '../transaction/transaction.entity'
 import { FinanceService } from '../finance/finance.service'
 
 @Injectable()
@@ -16,7 +15,6 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: MongoRepository<User>,
-    @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>,
     private readonly jwtService: JwtService,
     private readonly financeService: FinanceService
   ) {}
