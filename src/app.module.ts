@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user/user.entity'
 import { Transaction } from './transaction/transaction.entity'
 import { FinanceModule } from './finance/finance.module';
+import { typeOrmConfig } from './configs/typeorm.config'
 
 @Module({
   imports: [
@@ -15,17 +16,7 @@ import { FinanceModule } from './finance/finance.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mongodb',
-        host: configService.get('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_DATABASE'),
-        entities: [User, Transaction],
-        synchronize: true,
-        useUnifiedTopology: true
-      }),
+      useFactory: typeOrmConfig
     }),
     UserModule,
     TransactionModule,
