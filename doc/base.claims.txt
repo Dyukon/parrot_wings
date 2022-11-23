@@ -1,0 +1,9 @@
+Claims to the Parrot Wings implementation on base server (http://193.124.114.46:3001)
+
+1) Users and transactions are identified with ascending integer numbers - it causes problems in distributed systems. It's better to use some GUIDs.
+
+2) Each call to POST api/protected/transactions causes creation of 2 transactions (each one for sender and recipient) - it's excessive and makes development harder (atomicity of creation needs to be supported)
+
+3) POST api/protected/transactions allows user to make transfer to himself - that has no sense.
+
+4) In POST api/protected/transactions the receiver is identified with his name (which may be not unique). It's better to use id instead of it.

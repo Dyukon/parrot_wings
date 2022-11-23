@@ -1,0 +1,200 @@
+===
+Users are created
+===
+
+
+POST http://193.124.114.46:3001/users
+{
+    "username": "One",
+    "email": "one@one.one",
+    "password": "one"
+}
+{
+  "id_token": "..."
+}
+
+POST http://193.124.114.46:3001/users
+{
+    "username": "Two",
+    "email": "two@two.two",
+    "password": "two"
+}
+{
+  "id_token": "..."
+}
+
+===
+Users are logged in
+===
+
+POST http://193.124.114.46:3001/sessions/create
+{
+    "email": "one@one.one",
+    "password": "one"
+}
+{
+  "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Ik9uZSIsImVtYWlsIjoib25lQG9uZS5vbmUiLCJpZCI6MTIsImJhbGFuY2UiOjUwMCwiaWF0IjoxNjY5MTM2MDY0LCJleHAiOjE2NjkxNTQwNjR9.xBM1PpvmLflgIRGNak2DEInBqLbBynUD91pOpjloKX4"
+}
+
+POST http://193.124.114.46:3001/sessions/create
+{
+    "email": "two@two.two",
+    "password": "two"
+}
+{
+  "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6IlR3byIsImVtYWlsIjoidHdvQHR3by50d28iLCJpZCI6MTMsImJhbGFuY2UiOjUwMCwiaWF0IjoxNjY5MTM2MTIyLCJleHAiOjE2NjkxNTQxMjJ9.Icqa8cXZHCMQGdl2OmqWijSc2f14KyuW7dmdF4oDfxA"
+}
+
+===
+ONE looks for TWO in user list
+===
+Authorization: "Bearer TOKEN_ONE"
+POST http://193.124.114.46:3001/api/protected/users/list
+{
+    "filter": "two"
+}
+[
+  {
+    "id": 13,
+    "name": "Two"
+  }
+]
+
+===
+ONE sends 50 to TWO
+===
+
+POST http://193.124.114.46:3001/api/protected/transactions
+Authorization: "Bearer TOKEN_ONE"
+{
+	"name": "Two",
+	"amount": 50
+}
+{
+  "trans_token": {
+    "id": 5,
+    "date": "22.11.2022, 20:01:21",
+    "username": "Two",
+    "amount": -50,
+    "balance": 450
+  }
+}
+
+===
+TWO looks for ONE in user list
+===
+Authorization: "Bearer TOKEN_TWO"
+POST http://193.124.114.46:3001/api/protected/users/list
+{
+    "filter": "one"
+}
+[
+  {
+    "id": 12,
+    "name": "One"
+  }
+]
+
+===
+TWO sends 150 to ONE
+===
+
+POST http://193.124.114.46:3001/api/protected/transactions
+Authorization: "Bearer TOKEN_TWO"
+{
+	"name": "One",
+	"amount": 150
+}
+{
+  "trans_token": {
+    "id": 7,
+    "date": "22.11.2022, 20:04:19",
+    "username": "One",
+    "amount": -150,
+    "balance": 400
+  }
+}
+
+===
+ONE looks at transaction list
+===
+
+GET http://193.124.114.46:3001/api/protected/transactions
+Authorization: "Bearer TOKEN_ONE"
+{}
+{
+  "trans_token": [
+    {
+      "id": 5,
+      "date": "22.11.2022, 20:01:21",
+      "username": "Two",
+      "amount": -50,
+      "balance": 450
+    },
+    {
+      "id": 8,
+      "date": "22.11.2022, 20:04:19",
+      "username": "Two",
+      "amount": 150,
+      "balance": 600
+    }
+  ]
+}
+
+===
+ONE looks at his own info
+===
+
+GET http://193.124.114.46:3001/api/protected/user-info
+Authorization: "Bearer TOKEN_ONE"
+{}
+{
+  "user_info_token": {
+    "id": 12,
+    "name": "One",
+    "email": "one@one.one",
+    "balance": 600
+  }
+}
+
+===
+TWO looks at transaction list
+===
+
+GET http://193.124.114.46:3001/api/protected/transactions
+Authorization: "Bearer TOKEN_TWO"
+{}
+{
+  "trans_token": [
+    {
+      "id": 6,
+      "date": "22.11.2022, 20:01:21",
+      "username": "One",
+      "amount": 50,
+      "balance": 550
+    },
+    {
+      "id": 7,
+      "date": "22.11.2022, 20:04:19",
+      "username": "One",
+      "amount": -150,
+      "balance": 400
+    }
+  ]
+}
+
+===
+TWO looks at his own info
+===
+
+GET http://193.124.114.46:3001/api/protected/user-info
+Authorization: "Bearer TOKEN_TWO"
+{}
+{
+  "user_info_token": {
+    "id": 13,
+    "name": "Two",
+    "email": "two@two.two",
+    "balance": 400
+  }
+}

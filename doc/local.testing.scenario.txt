@@ -1,0 +1,120 @@
+===
+Users are created
+===
+
+
+POST http://localhost:3000/users
+{
+    "username": "One",
+    "email": "one@one.one",
+    "password": "one"
+}
+{
+  "id_token": "..."
+}
+
+POST http://localhost:3000/users
+{
+    "username": "Two",
+    "email": "two@two.two",
+    "password": "two"
+}
+{
+  "id_token": "..."
+}
+
+===
+Users are logged in
+===
+
+POST http://localhost:3000/sessions/create
+{
+    "email": "one@one.one",
+    "password": "one"
+}
+{
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9uZUBvbmUub25lIiwiaWF0IjoxNjY5MTgwMDk2fQ.Eu9eQaD3svFo8f80Gvm5kkiKNzOckKNUmbJWMLvAr90"
+}
+
+POST http://localhost:3000/sessions/create
+{
+    "email": "two@two.two",
+    "password": "two"
+}
+{
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InR3b0B0d28udHdvIiwiaWF0IjoxNjY5MTgwMTMxfQ.a5U3AxhJ8zVRDp_fcVeeCpYkn9o9L0jAR8bS01BOK1E"
+}
+
+===
+ONE looks for TWO in user list
+===
+
+Authorization: "Bearer TOKEN_ONE"
+POST http://localhost:3000/api/protected/users/list
+{
+    "filter": "two"
+}
+
+===
+ONE sends 50 to TWO
+===
+
+POST http://localhost:3000/api/protected/transactions
+Authorization: "Bearer TOKEN_ONE"
+{
+	"name": "Two",
+	"amount": 50
+}
+
+===
+TWO looks for ONE in user list
+===
+Authorization: "Bearer TOKEN_TWO"
+POST http://localhost:3000/api/protected/users/list
+{
+    "filter": "one"
+}
+
+===
+TWO sends 150 to ONE
+===
+
+POST http://localhost:3000/api/protected/transactions
+Authorization: "Bearer TOKEN_TWO"
+{
+	"name": "One",
+	"amount": 150
+}
+
+===
+ONE looks at transaction list
+===
+
+GET http://localhost:3000/api/protected/transactions
+Authorization: "Bearer TOKEN_ONE"
+{}
+
+
+===
+ONE looks at his own info
+===
+
+GET http://localhost:3000/api/protected/user-info
+Authorization: "Bearer TOKEN_ONE"
+{}
+
+===
+TWO looks at transaction list
+===
+
+GET http://localhost:3000/api/protected/transactions
+Authorization: "Bearer TOKEN_TWO"
+{}
+
+===
+TWO looks at his own info
+===
+
+GET http://localhost:3000/api/protected/user-info
+Authorization: "Bearer TOKEN_TWO"
+{}
