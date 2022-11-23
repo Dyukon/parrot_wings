@@ -93,17 +93,17 @@ export class UserService {
     )
   }
 
-  async getFilteredUserList(filter: string): Promise<FilteredUserListResponseDto[]> {
+  async getFilteredUserList(filter: string, excludedId: string): Promise<FilteredUserListResponseDto[]> {
     const regex: any = new RegExp(filter, 'i')
     const users = await this.userRepository.find({
       where: {
         name: regex
       }
     })
-    return users.map(x => ({
-      id: x._id,
-      name: x.name
-    }))
+
+    return users
+      .map(x => ({ id: x._id, name: x.name}))
+      .filter(x => x.id.toString() !== excludedId.toString())
   }
 
   async updateBalanceById(id: string, balance: number) {

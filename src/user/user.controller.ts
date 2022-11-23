@@ -75,6 +75,6 @@ export class UserController {
       )
     }
 
-    return this.userService.getFilteredUserList(dto.filter)
+    return this.userService.getFilteredUserList(dto.filter, user._id)
   }
 }
