@@ -7,3 +7,22 @@ Claims to the Parrot Wings implementation on base server (http://193.124.114.46:
 3) POST api/protected/transactions allows user to make transfer to himself - that has no sense.
 
 4) In POST api/protected/transactions the receiver is identified with his name (which may be not unique). It's better to use id instead of it.
+
+5)
+Presently we have following server endpoints:
+    POST /users - create/register a user
+    POST /sessions/create - login
+    GET /api/protected/transactions - list of logged user transactions
+    POST /api/protected/transactions - create a transaction
+    GET /api/protected/user-info - logged user info
+    POST /api/protected/users/list - filtered User list
+
+Taking into account this recommendation
+(https://habr.com/ru/post/351890/),
+it would be better to convert names of some of them:
+    POST /users - create/register a user
+    * POST /sessions - login
+    GET /api/protected/transactions - list of logged user transactions
+    POST /api/protected/transactions - create a transaction
+    * GET /api/protected/users/{:userId} - logged user info
+    * POST /api/protected/users - filtered User list
