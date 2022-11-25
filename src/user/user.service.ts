@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { CreateUserRequestDto } from './dto/create-user-dto'
+import { CreateUserRequestDto, CreateUserResponseDto } from './dto/create-user-dto'
 import { compare, genSalt, hash } from 'bcryptjs'
 import { UserDto } from './dto/user.dto'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './user.entity'
-import { ILike, MongoRepository } from 'typeorm'
+import { MongoRepository } from 'typeorm'
 import { FilteredUserListResponseDto } from './dto/filtered-user-list.dto'
 import { LoginRequestDto } from './dto/login.dto'
 import { FinanceService } from '../finance/finance.service'
@@ -19,7 +19,7 @@ export class UserService {
     private readonly financeService: FinanceService
   ) {}
 
-  async create(dto: CreateUserRequestDto) {
+  async create(dto: CreateUserRequestDto): Promise<CreateUserResponseDto> {
     const salt = await genSalt(10)
     const passwordHash = await hash(dto.password, salt)
 

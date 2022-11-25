@@ -1,11 +1,21 @@
 import { DateLib } from '../../lib/date.lib'
 import { Transaction } from '../transaction.entity'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class TransactionDto {
+  @ApiProperty()
   id: string
+
+  @ApiProperty()
   date: string
+
+  @ApiProperty()
   username: string
+
+  @ApiProperty()
   amount: number
+
+  @ApiProperty()
   balance: number
 
   static fromTransaction(t: Transaction, userId: string): TransactionDto {

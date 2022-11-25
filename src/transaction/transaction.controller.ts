@@ -11,9 +11,10 @@ import {
   HttpStatus, HttpCode
 } from '@nestjs/common'
 import { TransactionService } from './transaction.service'
-import { CreateTransactionRequestDto } from './dto/create-transaction.dto'
+import { CreateTransactionRequestDto, CreateTransactionResponseDto } from './dto/create-transaction.dto'
 import { JwtAuthGuard } from '../guards/jwt.guard'
 import { UserService } from '../user/user.service'
+import { GetTransactionsResponseDto } from './dto/get-transactions.dto'
 
 @Controller()
 export class TransactionController {
@@ -24,7 +25,7 @@ export class TransactionController {
 
   @UseGuards(JwtAuthGuard)
   @Get('api/protected/transactions')
-  async getTransactions(@Request() req) {
+  async getTransactions(@Request() req): Promise<GetTransactionsResponseDto> {
     const user = await this.userService.findByEmail(req.user.email)
     if (!user) {
       throw new HttpException(
@@ -43,7 +44,7 @@ export class TransactionController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
   @Post('api/protected/transactions')
-  async createTransaction(@Request() req, @Body() dto: CreateTransactionRequestDto) {
+  async createTransaction(@Request() req, @Body() dto: CreateTransactionRequestDto): Promise<CreateTransactionResponseDto> {
     const transaction = await this.transactionService.createTransaction(
       req.user.email,
       dto.name,
