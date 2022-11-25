@@ -15,6 +15,8 @@ import { CreateTransactionRequestDto, CreateTransactionResponseDto } from './dto
 import { JwtAuthGuard } from '../guards/jwt.guard'
 import { UserService } from '../user/user.service'
 import { GetTransactionsResponseDto } from './dto/get-transactions.dto'
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
+import { SWAGGER_AUTH_TOKEN } from '../lib/constants.lib'
 
 @Controller()
 export class TransactionController {
@@ -23,6 +25,8 @@ export class TransactionController {
     private readonly userService: UserService
   ) {}
 
+  @ApiOkResponse({ type: GetTransactionsResponseDto })
+  @ApiBearerAuth(SWAGGER_AUTH_TOKEN)
   @UseGuards(JwtAuthGuard)
   @Get('api/protected/transactions')
   async getTransactions(@Request() req): Promise<GetTransactionsResponseDto> {
@@ -40,6 +44,8 @@ export class TransactionController {
     }
   }
 
+  @ApiOkResponse({ type: CreateTransactionResponseDto })
+  @ApiBearerAuth(SWAGGER_AUTH_TOKEN)
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())

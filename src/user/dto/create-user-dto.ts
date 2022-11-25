@@ -1,22 +1,23 @@
 import { IsString } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+import { SWAGGER_AUTH_TOKEN } from '../../lib/constants.lib'
 
 export class CreateUserRequestDto {
-  @ApiProperty()
+  @ApiProperty({ default: 'Test' })
   @IsString()
   username: string
 
-  @ApiProperty()
+  @ApiProperty({ default: 'test' })
   @IsString()
   password: string
 
-  @ApiProperty()
+  @ApiProperty({ default: 'test@test.test' })
   @IsString()
   email: string
 }
 
 export class CreateUserResponseDto {
-  @ApiProperty()
+  @ApiProperty({ default: SWAGGER_AUTH_TOKEN })
   @IsString()
   id_token: string
 }

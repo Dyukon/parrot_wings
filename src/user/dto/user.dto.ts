@@ -1,16 +1,15 @@
-import { User } from '../user.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class UserDto {
-  @ApiProperty()
+  @ApiProperty({ default: '507f1f77bcf86cd799439011' })
   id: string
 
-  @ApiProperty()
+  @ApiProperty({ default: 'Test' })
   name: string
 
-  @ApiProperty()
+  @ApiProperty({ default: 'test@test.test' })
   email: string
 
-  @ApiProperty()
+  @ApiProperty({ default: 450 })
   balance: number
 }

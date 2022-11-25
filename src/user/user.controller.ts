@@ -12,17 +12,18 @@ import {
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { CreateUserRequestDto, CreateUserResponseDto } from './dto/create-user-dto'
-import { FilteredUserListRequestDto } from './dto/filtered-user-list.dto'
+import { FilteredUserDto, FilteredUserListRequestDto } from './dto/filtered-user-list.dto'
 import { JwtAuthGuard } from '../guards/jwt.guard'
 import { LoginRequestDto, LoginResponseDto } from './dto/login.dto'
-import { ApiExtraModels } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
 import { UserDto } from './dto/user.dto'
+import { SWAGGER_AUTH_TOKEN } from '../lib/constants.lib'
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @ApiExtraModels(CreateUserResponseDto)
+  @ApiOkResponse({ type: CreateUserResponseDto} )
   @HttpCode(200)
   @UsePipes(new ValidationPipe())
   @Post('users')
@@ -46,6 +47,7 @@ export class UserController {
     return await this.userService.create(dto)
   }
 
+  @ApiOkResponse({ type: LoginResponseDto} )
   @HttpCode(200)
   @UsePipes(new ValidationPipe())
   @Post('sessions/create')
@@ -60,6 +62,8 @@ export class UserController {
     return await this.userService.login(login)
   }
 
+  @ApiOkResponse({ type: UserDto })
+  @ApiBearerAuth(SWAGGER_AUTH_TOKEN)
   @UseGuards(JwtAuthGuard)
   @Get('api/protected/user-info')
   async getUserInfo(@Request() req): Promise<UserDto> {
@@ -73,11 +77,16 @@ export class UserController {
     return await this.userService.getInfoById(user._id)
   }
 
+  @ApiOkResponse({
+    type: FilteredUserDto,
+    isArray: true
+  })
+  @ApiBearerAuth(SWAGGER_AUTH_TOKEN)
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
   @Post('api/protected/users/list')
-  async getFilteredUserList(@Request() req, @Body() dto: FilteredUserListRequestDto) {
+  async getFilteredUserList(@Request() req, @Body() dto: FilteredUserListRequestDto): Promise<FilteredUserDto[]> {
     const user = await this.userService.findByEmail(req.user.email)
     if (!user) {
       throw new HttpException(

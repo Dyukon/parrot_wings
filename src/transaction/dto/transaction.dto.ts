@@ -3,19 +3,19 @@ import { Transaction } from '../transaction.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class TransactionDto {
-  @ApiProperty()
+  @ApiProperty({ default: '507f191e810c19729de860ea' })
   id: string
 
-  @ApiProperty()
+  @ApiProperty({ default: '25.11.2022, 14:35:26' })
   date: string
 
-  @ApiProperty()
+  @ApiProperty({ default: 'SomeUser' })
   username: string
 
-  @ApiProperty()
+  @ApiProperty({ default: -50 })
   amount: number
 
-  @ApiProperty()
+  @ApiProperty({ default: 450 })
   balance: number
 
   static fromTransaction(t: Transaction, userId: string): TransactionDto {

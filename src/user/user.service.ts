@@ -6,7 +6,7 @@ import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './user.entity'
 import { MongoRepository } from 'typeorm'
-import { FilteredUserListResponseDto } from './dto/filtered-user-list.dto'
+import { FilteredUserDto } from './dto/filtered-user-list.dto'
 import { LoginRequestDto } from './dto/login.dto'
 import { FinanceService } from '../finance/finance.service'
 
@@ -92,7 +92,7 @@ export class UserService {
     }
   }
 
-  async getFilteredUserList(filter: string, excludedId: string): Promise<FilteredUserListResponseDto[]> {
+  async getFilteredUserList(filter: string, excludedId: string): Promise<FilteredUserDto[]> {
     const regex: any = new RegExp(filter, 'i')
     const users = await this.userRepository.find({
       where: {
@@ -101,7 +101,7 @@ export class UserService {
     })
 
     return users
-      .map(x => FilteredUserListResponseDto.fromUser(x))
+      .map(x => FilteredUserDto.fromUser(x))
       .filter(x => x.id.toString() !== excludedId.toString())
   }
 }
