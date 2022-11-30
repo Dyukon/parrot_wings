@@ -1,6 +1,6 @@
 * src/transaction/transaction.service.ts 55, race condition;
   src/transaction/transaction.service.ts 67, race condition: возможна проблема newSenderBalance newRecipientBalance будет посчитан не верно
-
+    DONE
 src/user/user.controller.ts 61, 76
 =====
 * api префикс в роут можно добавить глобально,
@@ -15,4 +15,4 @@ src/user/user.controller.ts 61, 76
 * app.e2e-spec.ts в идеале e2e тесты лучше вынести в модули
     DONE
 * можно еще swagger подключить https://docs.nestjs.com/openapi/introduction
-    DONE - уже был подключен, сейчас живет прямо на :3000 в корне
+    DONE - уже был подключен, сейчас живет в localhost:3000/api
