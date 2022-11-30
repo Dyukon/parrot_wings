@@ -1,13 +1,18 @@
-src/transaction/transaction.service.ts 55, race condition;
-
-src/transaction/transaction.service.ts 67, race condition: возможна проблема newSenderBalance newRecipientBalance будет посчитан не верно
+* src/transaction/transaction.service.ts 55, race condition;
+  src/transaction/transaction.service.ts 67, race condition: возможна проблема newSenderBalance newRecipientBalance будет посчитан не верно
 
 src/user/user.controller.ts 61, 76
-api префикс в роут можно добавить глобально,
-protected можно опустить, users/list можно упростить до users,
-POST лучше переделать на GET(POST не может кэшироваться), а фильтры вынести в query params
-Также в других модулях лучше использовать глобальные роуты(для контроллера, для всего сервиса) https://docs.nestjs.com/controllers#routing
-
-app.e2e-spec.ts в идеале e2e тесты лучше вынести в модули
-
-можно еще swagger подключить https://docs.nestjs.com/openapi/introduction
+=====
+* api префикс в роут можно добавить глобально,
+    DONE
+* protected можно опустить,
+    DONE
+* users/list можно упростить до users,
+* POST лучше переделать на GET(POST не может кэшироваться), а фильтры вынести в query params
+    DONE
+* Также в других модулях лучше использовать глобальные роуты(для контроллера, для всего сервиса) https://docs.nestjs.com/controllers#routing
+    DONE
+* app.e2e-spec.ts в идеале e2e тесты лучше вынести в модули
+    DONE
+* можно еще swagger подключить https://docs.nestjs.com/openapi/introduction
+    DONE - уже был подключен, сейчас живет прямо на :3000 в корне

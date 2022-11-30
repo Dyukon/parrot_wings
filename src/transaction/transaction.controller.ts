@@ -18,7 +18,7 @@ import { GetTransactionsResponseDto } from './dto/get-transactions.dto'
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
 import { SWAGGER_AUTH_TOKEN } from '../lib/constants.lib'
 
-@Controller()
+@Controller('transactions')
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
@@ -28,7 +28,7 @@ export class TransactionController {
   @ApiOkResponse({ type: GetTransactionsResponseDto })
   @ApiBearerAuth(SWAGGER_AUTH_TOKEN)
   @UseGuards(JwtAuthGuard)
-  @Get('api/protected/transactions')
+  @Get()
   async getTransactions(@Request() req): Promise<GetTransactionsResponseDto> {
     const user = await this.userService.findByEmail(req.user.email)
     if (!user) {
@@ -49,7 +49,7 @@ export class TransactionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
-  @Post('api/protected/transactions')
+  @Post()
   async createTransaction(@Request() req, @Body() dto: CreateTransactionRequestDto): Promise<CreateTransactionResponseDto> {
     const transaction = await this.transactionService.createTransaction(
       req.user.email,

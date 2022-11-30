@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
-import { AppModule } from './../src/app.module'
+import { AppModule } from '../app.module'
 
-describe('AppController (e2e)', () => {
+describe('UserController (e2e)', () => {
   const TEST_USER_NAME1 = 'One'
   const TEST_USER_EMAIL1 = 'one@one.one'
   const TEST_USER_PASSWORD1 = 'one'
@@ -20,11 +20,12 @@ describe('AppController (e2e)', () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
+    app.setGlobalPrefix('api')
     await app.init()
   })
 
   it('/ (GET)', () => {
-    return request(app.getHttpServer())
+    request(app.getHttpServer())
       .get('/')
       .expect(200)
       .expect('Hello World!')
@@ -38,7 +39,7 @@ describe('AppController (e2e)', () => {
     beforeAll(async () => {
 
       const registerRes1 = await request(app.getHttpServer())
-        .post('/users')
+        .post('/api/users')
         .send({
           username: TEST_USER_NAME1,
           password: TEST_USER_PASSWORD1,
@@ -49,7 +50,7 @@ describe('AppController (e2e)', () => {
       // expect(registerRes1.body.id_token.split('.').length).toBe(3)
 
       const registerRes2 = await request(app.getHttpServer())
-        .post('/users')
+        .post('/api/users')
         .send({
           username: TEST_USER_NAME2,
           password: TEST_USER_PASSWORD2,
@@ -60,7 +61,7 @@ describe('AppController (e2e)', () => {
       // expect(registerRes2.body.id_token.split('.').length).toBe(3)
 
       const loginRes1 = await request(app.getHttpServer())
-        .post('/sessions/create')
+        .post('/api/users/login')
         .send({
           email: TEST_USER_EMAIL1,
           password: TEST_USER_PASSWORD1
@@ -68,7 +69,7 @@ describe('AppController (e2e)', () => {
       authHeader1 = `Bearer ${loginRes1.body.id_token}`
 
       const loginRes2 = await request(app.getHttpServer())
-        .post('/sessions/create')
+        .post('/api/users/login')
         .send({
           email: TEST_USER_EMAIL2,
           password: TEST_USER_PASSWORD2
@@ -76,60 +77,11 @@ describe('AppController (e2e)', () => {
       authHeader2 = `Bearer ${loginRes2.body.id_token}`
     })
 
-    describe('GET /api/protected/transactions - logged user transactions', () => {
-
-      it('logged user transactions should success', async () => {
-        const res = await request(app.getHttpServer())
-          .get('/api/protected/transactions')
-          .set(`Authorization`, authHeader1)
-          .expect(200)
-
-        expect(res.body.trans_token).toBeDefined()
-      })
-    })
-
-    describe('POST /api/protected/transactions - create new transaction', () => {
-
-      it('create new transaction should success', async () => {
-        const res1 = await request(app.getHttpServer())
-          .post('/api/protected/transactions')
-          .send({
-            name: TEST_USER_NAME2,
-            amount: 50
-          })
-          .set(`Authorization`, authHeader1)
-          .expect(200)
-
-        const tran1 = res1.body.trans_token
-        expect(tran1).toBeDefined()
-        expect(tran1.id).toBeDefined()
-        expect(tran1.username).toBe(TEST_USER_NAME2)
-        expect(tran1.amount).toBe(-50)
-        expect(tran1.balance).toBeDefined()
-
-        const res2 = await request(app.getHttpServer())
-          .post('/api/protected/transactions')
-          .send({
-            name: TEST_USER_NAME1,
-            amount: 50
-          })
-          .set(`Authorization`, authHeader2)
-          .expect(200)
-
-        const tran2 = res2.body.trans_token
-        expect(tran2).toBeDefined()
-        expect(tran2.id).toBeDefined()
-        expect(tran2.username).toBe(TEST_USER_NAME1)
-        expect(tran2.amount).toBe(-50)
-        expect(tran2.balance).toBeDefined()
-      })
-    })
-
-    describe('GET /api/protected/user-info - logged user info', () => {
+    describe('GET /api/users/info - logged user info', () => {
 
       it('logged user info should success', async () => {
         const res = await request(app.getHttpServer())
-          .get('/api/protected/user-info')
+          .get('/api/users/info')
           .set(`Authorization`, authHeader1)
           .expect(200)
 
@@ -140,14 +92,11 @@ describe('AppController (e2e)', () => {
       })
     })
 
-    describe('POST /api/protected/users/list - filtered user list', () => {
+    describe('GET /api/users - filtered user list', () => {
 
       it('filtered user list should return empty list if nobody is found', async () => {
         const res = await request(app.getHttpServer())
-          .post('/api/protected/users/list')
-          .send({
-            filter: 'Nobody'
-          })
+          .get('/api/users?filter=Nobody')
           .set(`Authorization`, authHeader1)
           .expect(200)
 
@@ -156,10 +105,7 @@ describe('AppController (e2e)', () => {
 
       it('filtered user list should find user by filter', async () => {
         const res = await request(app.getHttpServer())
-          .post('/api/protected/users/list')
-          .send({
-            filter: 'two'
-          })
+          .get('/api/users?filter=two')
           .set(`Authorization`, authHeader1)
           .expect(200)
 
@@ -170,10 +116,7 @@ describe('AppController (e2e)', () => {
 
       it('filtered user list should not find request initiator', async () => {
         const res = await request(app.getHttpServer())
-          .post('/api/protected/users/list')
-          .send({
-            filter: 'two'
-          })
+          .get('/api/users?filter=two')
           .set(`Authorization`, authHeader2)
           .expect(200)
 
