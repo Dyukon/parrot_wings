@@ -2,7 +2,7 @@
 Users are created and logged in
 ===
 
-POST http://localhost:3000/users
+POST http://localhost:3000/api/users
 {
     "username": "One",
     "email": "one@one.one",
@@ -12,7 +12,7 @@ POST http://localhost:3000/users
   "id_token": ...
 }
 
-POST http://localhost:3000/sessions/create
+POST http://localhost:3000/api/users/login
 {
     "email": "one@one.one",
     "password": "one"
@@ -21,7 +21,7 @@ POST http://localhost:3000/sessions/create
   "id_token": TOKEN_ONE
 }
 
-POST http://localhost:3000/users
+POST http://localhost:3000/api/users
 {
     "username": "Two",
     "email": "two@two.two",
@@ -31,7 +31,7 @@ POST http://localhost:3000/users
   "id_token": ...
 }
 
-POST http://localhost:3000/sessions/create
+POST http://localhost:3000/api/users/login
 {
     "email": "two@two.two",
     "password": "two"
@@ -45,12 +45,9 @@ ONE looks for TWO in user list and sends him 50
 ===
 
 Authorization: "Bearer TOKEN_ONE"
-POST http://localhost:3000/api/protected/users/list
-{
-    "filter": "two"
-}
+GET http://localhost:3000/api/users?filter=two
 
-POST http://localhost:3000/api/protected/transactions
+POST http://localhost:3000/api/transactions
 Authorization: "Bearer TOKEN_ONE"
 {
 	"name": "Two",
@@ -62,12 +59,9 @@ TWO looks for ONE in user list and sends him 150
 ===
 
 Authorization: "Bearer TOKEN_TWO"
-POST http://localhost:3000/api/protected/users/list
-{
-    "filter": "one"
-}
+GET http://localhost:3000/api/users?filter=one
 
-POST http://localhost:3000/api/protected/transactions
+POST http://localhost:3000/api/transactions
 Authorization: "Bearer TOKEN_TWO"
 {
 	"name": "One",
@@ -78,11 +72,11 @@ Authorization: "Bearer TOKEN_TWO"
 ONE looks at transaction list and his own info
 ===
 
-GET http://localhost:3000/api/protected/transactions
+GET http://localhost:3000/api/transactions
 Authorization: "Bearer TOKEN_ONE"
 {}
 
-GET http://localhost:3000/api/protected/user-info
+GET http://localhost:3000/api/users/info
 Authorization: "Bearer TOKEN_ONE"
 {}
 
@@ -90,10 +84,10 @@ Authorization: "Bearer TOKEN_ONE"
 TWO looks at transaction list and his own info
 ===
 
-GET http://localhost:3000/api/protected/transactions
+GET http://localhost:3000/api/transactions
 Authorization: "Bearer TOKEN_TWO"
 {}
 
-GET http://localhost:3000/api/protected/user-info
+GET http://localhost:3000/api/users/info
 Authorization: "Bearer TOKEN_TWO"
 {}

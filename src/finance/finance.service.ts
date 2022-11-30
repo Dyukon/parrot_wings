@@ -1,23 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm'
 import { Transaction } from '../transaction/transaction.entity'
-import { MongoRepository } from 'typeorm'
+import { EntityManager } from 'typeorm'
 
 @Injectable()
 export class FinanceService {
 
-  constructor(
-    @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>
-  ) {}
+  constructor() {}
 
-  async getBalance(userId: string) {
-    const lastTransactions = await this.transactionRepository.find({
-      where: {
-        $or: [
-          {senderId: userId},
-          {recipientId: userId}
-        ]
-      },
+  async getBalance(userId: string, entityManager: EntityManager) {
+    const lastTransactions = await entityManager.find(Transaction, {
+      where: [
+        {senderId: userId},
+        {recipientId: userId}
+      ],
       order: {
         date: -1
       },

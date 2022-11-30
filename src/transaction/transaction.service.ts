@@ -54,27 +54,32 @@ export class TransactionService {
       )
     }
 
-    const senderBalance = await this.financeService.getBalance(sender._id)
-    if (senderBalance < amount) {
-      throw new HttpException(
-        'Balance exceeded',
-        HttpStatus.BAD_REQUEST
-      )
-    }
-    const newSenderBalance = senderBalance - amount
+    let transaction
 
-    const recipientBalance = await this.financeService.getBalance(recipient._id)
-    const newRecipientBalance = recipientBalance + amount
+    // start TypeORM transaction
+    await this.dataSource.transaction(async (transactionalEntityManager) => {
+      const senderBalance = await this.financeService.getBalance(sender._id, transactionalEntityManager)
+      if (senderBalance < amount) {
+        throw new HttpException(
+          'Balance exceeded',
+          HttpStatus.BAD_REQUEST
+        )
+      }
+      const newSenderBalance = senderBalance - amount
 
-    const transaction = await this.transactionRepository.save({
-      date: new Date(),
-      senderId: sender._id,
-      senderName: sender.name,
-      recipientId: recipient._id,
-      recipientName: recipient.name,
-      amount: amount,
-      senderBalance: newSenderBalance,
-      recipientBalance: newRecipientBalance
+      const recipientBalance = await this.financeService.getBalance(recipient._id, transactionalEntityManager)
+      const newRecipientBalance = recipientBalance + amount
+
+      transaction = await transactionalEntityManager.save(Transaction, {
+        date: new Date(),
+        senderId: sender._id,
+        senderName: sender.name,
+        recipientId: recipient._id,
+        recipientName: recipient.name,
+        amount: amount,
+        senderBalance: newSenderBalance,
+        recipientBalance: newRecipientBalance
+      })
     })
 
     return TransactionDto.fromTransaction(transaction, sender._id)

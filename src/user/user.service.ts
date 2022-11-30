@@ -5,7 +5,7 @@ import { UserDto } from './dto/user.dto'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './user.entity'
-import { MongoRepository } from 'typeorm'
+import { DataSource, MongoRepository } from 'typeorm'
 import { FilteredUserDto } from './dto/filtered-user-list.dto'
 import { LoginRequestDto } from './dto/login.dto'
 import { FinanceService } from '../finance/finance.service'
@@ -14,6 +14,7 @@ import { FinanceService } from '../finance/finance.service'
 export class UserService {
 
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User) private readonly userRepository: MongoRepository<User>,
     private readonly jwtService: JwtService,
     private readonly financeService: FinanceService
@@ -83,7 +84,7 @@ export class UserService {
 
   async getInfoById(id: string): Promise<UserDto> {
     const user = await this.findById(id)
-    const balance = await this.financeService.getBalance(id)
+    const balance = await this.financeService.getBalance(id, this.dataSource.manager)
     return {
       id: user._id,
       name: user.name,

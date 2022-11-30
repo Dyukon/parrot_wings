@@ -86,8 +86,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
   @Get('')
-  async getFilteredUserList(@Request() req, @Query() dto: FilteredUserListRequestDto): Promise<FilteredUserDto[]> {
-    console.log(`getFilteredUserList - dto: ${JSON.stringify(dto)}`)
+  async getFilteredUserList(@Request() req): Promise<FilteredUserDto[]> {
     const user = await this.userService.findByEmail(req.user.email)
     if (!user) {
       throw new HttpException(
@@ -96,6 +95,6 @@ export class UserController {
       )
     }
 
-    return this.userService.getFilteredUserList(dto.filter, user._id)
+    return this.userService.getFilteredUserList(req.query.filter, user._id)
   }
 }
