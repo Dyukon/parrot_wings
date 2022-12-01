@@ -1,8 +1,8 @@
-import { Column, Entity, Index, ObjectIdColumn } from 'typeorm'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 
-@Entity()
+@Entity('pw_transactions')
 export class Transaction {
-  @ObjectIdColumn()
+  @PrimaryGeneratedColumn()
   _id: string
 
   @Index()

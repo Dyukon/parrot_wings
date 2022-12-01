@@ -5,7 +5,7 @@ import { UserDto } from './dto/user.dto'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './user.entity'
-import { DataSource, MongoRepository } from 'typeorm'
+import { DataSource, ILike, Repository } from 'typeorm'
 import { FilteredUserDto } from './dto/filtered-user-list.dto'
 import { LoginRequestDto } from './dto/login.dto'
 import { FinanceService } from '../finance/finance.service'
@@ -15,7 +15,7 @@ export class UserService {
 
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(User) private readonly userRepository: MongoRepository<User>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly financeService: FinanceService
   ) {}
@@ -94,10 +94,9 @@ export class UserService {
   }
 
   async getFilteredUserList(filter: string, excludedId: string): Promise<FilteredUserDto[]> {
-    const regex: any = new RegExp(filter, 'i')
     const users = await this.userRepository.find({
       where: {
-        name: regex
+        name: ILike(`%${filter}%`)
       }
     })
 

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { UserService } from '../user/user.service'
 import { InjectRepository } from '@nestjs/typeorm'
-import { DataSource, MongoRepository } from 'typeorm'
+import { DataSource, Repository } from 'typeorm'
 import { Transaction } from './transaction.entity'
 import { TransactionDto } from './dto/transaction.dto'
 import { FinanceService } from '../finance/finance.service'
@@ -10,7 +10,7 @@ import { FinanceService } from '../finance/finance.service'
 export class TransactionService {
 
   constructor(
-    @InjectRepository(Transaction) private readonly transactionRepository: MongoRepository<Transaction>,
+    @InjectRepository(Transaction) private readonly transactionRepository: Repository<Transaction>,
     private readonly dataSource: DataSource,
     private readonly financeService: FinanceService,
     private readonly userService: UserService
@@ -18,12 +18,10 @@ export class TransactionService {
 
   async findByUserId(userId: string): Promise<TransactionDto[]> {
     const transactions = await this.transactionRepository.find({
-      where: {
-        $or: [
-          {senderId: userId},
-          {recipientId: userId}
-        ]
-      },
+      where: [
+        {senderId: userId},
+        {recipientId: userId}
+      ],
       order: {
         date: 1
       }
@@ -56,7 +54,6 @@ export class TransactionService {
 
     let transaction
 
-    // start TypeORM transaction
     await this.dataSource.transaction(async (transactionalEntityManager) => {
       const senderBalance = await this.financeService.getBalance(sender._id, transactionalEntityManager)
       if (senderBalance < amount) {

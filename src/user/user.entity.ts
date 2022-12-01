@@ -1,8 +1,8 @@
-import { Column, Entity, Index, ObjectIdColumn } from 'typeorm'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 
-@Entity()
+@Entity('pw_users')
 export class User {
-  @ObjectIdColumn()
+  @PrimaryGeneratedColumn()
   _id: string
 
   @Index({ unique: true })
